@@ -5,34 +5,29 @@ export const CREDITS_PROGRAM_ID = 'credits.aleo';
 export const TRANSFER_PUBLIC_FUNCTION = 'transfer_public';
 
 /**
- * Executes a public transfer of credits to a target address,
- * then updates the reward state via the API.
+ * Executes a public transfer of credits to a target address.
  *
  * @param wallet - The wallet adapter instance (can be LeoWalletAdapter or ShieldWalletAdapter).
  * @param publicKey - The public key of the user performing the transfer.
- * @param proposerAddress - The address to receive the public transfer.
- * @param bountyReward - The reward amount (in microcredits) to be transferred.
+ * @param recipientAddress - The address to receive the public transfer.
+ * @param amount - The amount (in credits) to be transferred.
  * @param setTxStatus - Function to update the transaction status in the UI.
- * @param bountyId - The bounty ID.
- * @param proposalId - The proposal ID.
  * @returns The transaction ID of the submitted public transfer.
  */
 export async function publicTransfer(
   wallet: any,
   publicKey: string,
-  proposerAddress: string,
-  bountyReward: number,
+  recipientAddress: string,
+  amount: number,
   setTxStatus: (status: string | null) => void,
-  bountyId: number,
-  proposalId: number,
 ): Promise<string> {
-  // Format the reward amount (e.g. if bountyReward = 5000, then "5000000u64")
-  const rewardAmountforTransfer = `${bountyReward}000000u64`;
+  // Format the transfer amount (e.g. if amount = 5, then "5000000u64")
+  const formattedAmount = `${amount}000000u64`;
 
-  setTxStatus('Transferring reward to proposer (public transfer)...');
+  setTxStatus('Initiating public transfer...');
 
   // 1. Create the transaction input
-  const transferInput = [proposerAddress, rewardAmountforTransfer];
+  const transferInput = [recipientAddress, formattedAmount];
   
   const fee = getFeeForFunction(TRANSFER_PUBLIC_FUNCTION);
   console.log('Calculated fee (in micro credits):', fee);
@@ -67,22 +62,6 @@ export async function publicTransfer(
   }
 
   setTxStatus('Public transfer finalized.');
-
-  // 3. Call the API route to update the reward status
-  const rewardResponse = await fetch('/api/update-proposal-reward', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      bountyId,
-      proposalId,
-      rewardSent: true,
-    }),
-  });
-
-  if (!rewardResponse.ok) {
-    throw new Error('Failed to update reward status.');
-  }
-  setTxStatus('Reward status updated.');
   
   return txId;
 }

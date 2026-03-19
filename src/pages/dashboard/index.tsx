@@ -25,9 +25,7 @@ const DashboardPage: NextPageWithLayout = () => {
 
     // Oracle endpoints (run multiple instances)
     const oracleEndpoints = [
-        'http://localhost:3001/sign',
-        'http://localhost:3002/sign',
-        'http://localhost:3003/sign'
+        `${process.env.ORACLE_URL}/sign`
     ];
 
     const handleRequestLoan = async () => {
@@ -58,7 +56,7 @@ const DashboardPage: NextPageWithLayout = () => {
             }
         }
         
-        if (sigs.length < 2) {
+        if (sigs.length < 1) {
             setStatus('Not enough oracle signatures');
             setLoading(false);
             return;
@@ -121,8 +119,8 @@ const DashboardPage: NextPageWithLayout = () => {
     return (
         <div className="max-w-2xl mx-auto bg-base-100 rounded-lg shadow-card p-6 mt-10">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold">Request a Private Loan</h1>
-                <p className="text-gray-500 text-sm mt-1">Your credit score never leaves your device.</p>
+                <h1 className="text-2xl font-bold text-center">Request a Private Loan</h1>
+                <p className="text-gray-500 text-sm mt-1 text-center">Your credit score never leaves your device.</p>
             </div>
 
             <div className="space-y-4">

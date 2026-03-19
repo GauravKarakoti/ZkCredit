@@ -7,28 +7,24 @@ export const TRANSFER_PRIVATE_FUNCTION = 'transfer_private';
 import { getFeeForFunction } from '@/utils/feeCalculator';
 
 /**
- * Executes a private transfer of credits to a target address, then updates the reward state via the API.
+ * Executes a private transfer of credits to a target address.
  *
  * @param wallet - The wallet adapter instance (can be LeoWalletAdapter or ShieldWalletAdapter).
  * @param publicKey - The public key of the user performing the transfer.
- * @param proposerAddress - The address to receive the funds.
- * @param bountyReward - The reward amount (in microcredits) to be transferred.
+ * @param recipientAddress - The address to receive the funds.
+ * @param amount - The amount (in credits) to be transferred.
  * @param setTxStatus - Function to update the transaction status in the UI.
- * @param bountyId - The bounty ID.
- * @param proposalId - The proposal ID.
  * @returns The transaction ID of the submitted private transfer.
  */
 export async function privateTransfer(
   wallet: any,
   publicKey: string,
-  proposerAddress: string,
-  bountyReward: number,
+  recipientAddress: string,
+  amount: number,
   setTxStatus: (status: string | null) => void,
-  bountyId: number,
-  proposalId: number
 ): Promise<string> {
-  // Format the reward amount (e.g. if bountyReward = 5000, then "5000000u64")
-  const rewardAmountforTransfer = `${bountyReward}000000u64`; 
+  // Format the transfer amount (e.g. if amount = 5, then "5000000u64")
+  const formattedAmount = `${amount}000000u64`; 
   const allRecords = await wallet.requestRecords(CREDITS_PROGRAM_ID, true);
   if (!allRecords || allRecords.length === 0) {
     throw new Error('No credits records found.');
@@ -44,12 +40,12 @@ export async function privateTransfer(
     throw new Error('No unspent private records available.');
   }
 
-  // 2. Find one record that can cover bountyReward
+  // 2. Find one record that can cover the transfer amount
   const extractValue = (valueStr: string): number => {
     const match = valueStr.match(/^(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   };
-  const neededAmount = extractValue(rewardAmountforTransfer);
+  const neededAmount = extractValue(formattedAmount);
 
   const transferCandidates = unspentRecords.filter((record: any) => {
     const recordValue = extractValue(record.data.microcredits);
@@ -67,8 +63,8 @@ export async function privateTransfer(
   // 3. Create transaction inputs
   const txInputs = [
     chosenRecord,      // The record we’ll spend
-    proposerAddress,   // The address receiving the funds
-    rewardAmountforTransfer,
+    recipientAddress,   // The address receiving the funds
+    formattedAmount,
   ];
 
   console.log('Private transfer inputs:', txInputs);
@@ -110,22 +106,6 @@ export async function privateTransfer(
   } else {
     setTxStatus('Private transfer finalized.');
   }
-
-  // 6. Call the API route to update the reward status
-  const rewardResponse = await fetch('/api/update-proposal-reward', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      bountyId,
-      proposalId,
-      rewardSent: true,
-    }),
-  });
-
-  if (!rewardResponse.ok) {
-    throw new Error('Failed to update reward status.');
-  }
-  setTxStatus('Reward status updated.');
   
   return txId;
 }

@@ -53,7 +53,7 @@ export default function Layout({
   contentClassName,
 }: React.PropsWithChildren<DashboardLayoutProps>) {
   return (
-    <div className="ltr:xl:pl-72 rtl:xl:pr-72 ltr:2xl:pl-80 rtl:2xl:pr-80">
+    <div>
       <Header />
       
       <main

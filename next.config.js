@@ -14,6 +14,7 @@ const nextConfig = {
     TWITTER: process.env.TWITTER,
     DISCORD: process.env.DISCORD,
     RPC_URL: process.env.RPC_URL,
+    ORACLE_URL: process.env.ORACLE_URL,
   },
   reactStrictMode: true,
   ...(process.env.NODE_ENV === 'production' && {

@@ -10,7 +10,7 @@ else
     echo "⚠️  Warning: .env file not found. Ensure PRIVATE_KEY is set in your shell."
 fi
 
-echo "🚀 Starting deployment of ShadowVote..."
+echo "🚀 Starting deployment of ZkCredit..."
 
 if [ -d "$PROGRAM_DIR" ]; then
     cd "$PROGRAM_DIR"

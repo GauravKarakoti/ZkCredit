@@ -12,7 +12,7 @@ const ErrorPage: NextPageWithLayout = () => {
     <>
       <NextSeo
         title="404 Error! No Result Found"
-        description="zKontract: A Zero-Knowledge Bounty Board on Aleo"
+        description="ZkCredit: Private Credit Scoring & Lending on Aleo"
       />
 
       <div className="flex max-w-full flex-col items-center justify-center text-center">
