@@ -39,12 +39,7 @@ else
     exit 1
 fi
 
-# Optional: Add your custom initialize transaction below if needed:
-# echo "🎬 Initializing the contract..."
-# leo execute initialize \
-#     --network testnet \
-#     --endpoint https://api.explorer.provable.com/v2 \
-#     --broadcast || {
-#     echo -e "${RED}❌ Failed to initialize contract${NC}"
-#     exit 1
-# }
+leo execute register_oracle 1000u64 \
+    --network testnet \
+    --endpoint https://api.explorer.provable.com/v1 \
+    --broadcast

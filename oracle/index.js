@@ -1,33 +1,59 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { ed25519 } = require('@noble/ed25519');
-const crypto = require('crypto');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import { PrivateKey } from '@aleohq/sdk';
+import 'dotenv/config'; // Modern way to load dotenv
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Generate or load a keypair (in production, store securely)
-const privateKey = crypto.randomBytes(32);
-const publicKey = Buffer.from(ed25519.getPublicKey(privateKey)).toString('hex');
+// 1. Load the Aleo Private Key from the .env file
+const privateKeyString = process.env.ORACLE_PRIVATE_KEY;
 
-console.log(`Oracle public key: ${publicKey}`);
+if (!privateKeyString || !privateKeyString.startsWith('APrivateKey1')) {
+    console.error("❌ ERROR: Missing or invalid ORACLE_PRIVATE_KEY in .env");
+    console.error("Please provide a valid Aleo private key starting with 'APrivateKey1'");
+    process.exit(1);
+}
+
+// 2. Initialize the Aleo Keypair
+let privateKey;
+let oracleAddress;
+try {
+    privateKey = PrivateKey.from_string(privateKeyString);
+    oracleAddress = privateKey.to_address().to_string();
+    console.log("✅ Loaded Oracle Aleo private key from .env");
+    console.log(`🔑 Oracle Address: ${oracleAddress}`);
+} catch (error) {
+    console.error("❌ Failed to parse Aleo Private Key:", error.message);
+    process.exit(1);
+}
 
 app.post('/sign', (req, res) => {
-    const { scoreHash } = req.body; // scoreHash is a hex string of 32 bytes
+    const { scoreHash } = req.body; 
     if (!scoreHash) {
         return res.status(400).json({ error: 'Missing scoreHash' });
     }
-    // Sign the hash
-    const hashBuffer = Buffer.from(scoreHash, 'hex');
-    const signature = ed25519.sign(hashBuffer, privateKey);
-    res.json({
-        signature: Buffer.from(signature).toString('hex'),
-        publicKey: publicKey
-    });
+    
+    try {
+        // 3. Convert the string to bytes for signing
+        const encoder = new TextEncoder();
+        const messageBytes = encoder.encode(scoreHash);
+        
+        // 4. Sign the data using the Aleo SDK
+        const signature = privateKey.sign(messageBytes);
+        
+        res.json({
+            signature: signature.to_string(), // Returns an Aleo signature (sign1...)
+            oracle_address: oracleAddress
+        });
+    } catch (error) {
+        console.error("Signing error:", error);
+        res.status(500).json({ error: "Failed to sign data" });
+    }
 });
 
 app.listen(3001, () => {
-    console.log('Oracle running on port 3001');
+    console.log('🚀 Aleo Oracle running on port 3001');
 });
