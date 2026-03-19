@@ -45,7 +45,7 @@ const MainPage: NextPageWithLayout = () => {
         <div className="flex flex-col items-center mt-10 space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0">
           <Button
             onClick={handleButtonClick}
-            className="btn btn-primary px-6 py-3 text-lg font-semibold"
+            className="btn btn-secondary px-6 py-3 text-lg font-semibold"
           >
             {address ? 'Enter App' : 'Connect Wallet'}
           </Button>

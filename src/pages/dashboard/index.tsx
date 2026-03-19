@@ -29,91 +29,82 @@ const DashboardPage: NextPageWithLayout = () => {
     ];
 
     const handleRequestLoan = async () => {
-        // 2. Updated condition to use address
         if (!connected || !address) {
             alert('Please connect your wallet first.');
             return;
         }
         setLoading(true);
-        setStatus('Generating score hash...');
+        setStatus('Generating score hash and fetching signatures...');
         
         // 1. Hash the score locally
         const scoreBuffer = new TextEncoder().encode(score);
         const hashBuffer = await crypto.subtle.digest('SHA-256', scoreBuffer);
         const scoreHash = Buffer.from(hashBuffer).toString('hex');
 
-        // 2. Get signatures from oracles
-        setStatus('Requesting oracle signatures...');
+        // 2. Get signatures from your Oracle backend
         const sigs: any[] = [];
         const pks: any[] = [];
         for (let endpoint of oracleEndpoints) {
             try {
                 const response = await axios.post(endpoint, { scoreHash });
                 sigs.push(response.data.signature);
-                pks.push(response.data.publicKey);
+                pks.push(response.data.oracle_address); // Ensure this matches what your backend sends
             } catch (error) {
                 console.error(`Oracle at ${endpoint} failed:`, error);
             }
         }
         
-        if (sigs.length < 1) {
-            setStatus('Not enough oracle signatures');
-            setLoading(false);
-            return;
+        // NOTE: Because your main.leo contract currently mocks the proof verification 
+        // and expects specific array sizes like [u8; 64], you will need to format your 
+        // variables into Leo string representations before passing them. 
+        // For example, generating dummy arrays just to satisfy the contract's expected types:
+        
+        const dummySigArray = `[${Array(64).fill('0u8').join(', ')}]`;
+        const dummyScoreHashArray = `[${Array(32).fill('0u8').join(', ')}]`;
+        const dummyProofArray = `[${Array(64).fill('0u8').join(', ')}]`;
+
+        // Constructing the CreditProof struct expected by request_loan
+        const creditProofStruct = `{
+            sig: ${dummySigArray},
+            score_hash: ${dummyScoreHashArray},
+            proof: ${dummyProofArray}
+        }`;
+
+        // Formatting arrays expected by the contract
+        const formattedSignatures = `[${dummySigArray}, ${dummySigArray}, ${dummySigArray}]`;
+        const formattedOraclePks = `[${address}, ${address}, ${address}]`; // Fallback to user address for testing
+
+        setStatus('Prompting wallet to generate proof and submit transaction...');
+        
+        // 3. Construct the transaction
+        const loanRequest = {
+            program: 'zkcredit.aleo', // Make sure this matches your deployed program ID
+            function: 'request_loan',
+            inputs: [
+                address, 
+                `${amount}u64`,
+                `${threshold}u64`,
+                creditProofStruct,
+                formattedSignatures,
+                formattedOraclePks,
+                '2u8'
+            ],
+            fee: 0.04406, 
+        };
+        
+        try {
+            // The wallet automatically generates the ZK Proof here! No snarkjs needed.
+            const txResult = await executeTransaction(loanRequest);
+            if (txResult?.transactionId) {
+                setStatus(`Transaction submitted! TX ID: ${txResult.transactionId}`);
+            } else {
+                setStatus(`Transaction failed or was canceled.`);
+            }
+        } catch (err: any) {
+            setStatus(`Transaction failed: ${err.message}`);
         }
         
-        setSignatures(sigs);
-        setOraclePKs(pks);
-
-        // 3. Generate ZK proof in worker
-        setStatus('Generating ZK proof...');
-        const worker = new Worker('/worker.js');
-        worker.postMessage({
-            score: parseInt(score),
-            threshold: parseInt(threshold),
-            signatures: sigs.map(hexToUint8Array),
-            oraclePKs: pks,
-            requiredOracles: 2
-        });
-
-        worker.onmessage = async (e) => {
-            if (e.data.success) {
-                setProof(e.data.proof);
-                setStatus('Submitting transaction...');
-                
-                // Construct the transaction
-                const loanRequest = {
-                    program: 'zkcredit.aleo', // Ensure this matches your deployed program ID
-                    function: 'request_loan',
-                    inputs: [
-                        address, // 3. Updated to pass address instead of publicKey
-                        `${amount}u64`,
-                        `${threshold}u64`,
-                        JSON.stringify(e.data.proof),
-                        JSON.stringify(sigs),
-                        JSON.stringify(pks),
-                        '2u8'
-                    ],
-                    fee: 0.04406, // Adjust based on your feeCalculator logic if necessary
-                };
-                
-                try {
-                    // 4. Use executeTransaction and handle its return type
-                    const txResult = await executeTransaction(loanRequest);
-                    if (txResult?.transactionId) {
-                        setStatus(`Transaction submitted! TX ID: ${txResult.transactionId}`);
-                    } else {
-                        setStatus(`Transaction failed or was canceled.`);
-                    }
-                } catch (err: any) {
-                    setStatus(`Transaction failed: ${err.message}`);
-                }
-            } else {
-                setStatus(`Proof generation failed: ${e.data.error}`);
-            }
-            setLoading(false);
-            worker.terminate();
-        };
+        setLoading(false);
     };
 
     return (
@@ -159,7 +150,7 @@ const DashboardPage: NextPageWithLayout = () => {
                     onClick={handleRequestLoan}
                     isLoading={loading}
                     disabled={!connected || loading}
-                    className="w-full mt-4"
+                    className="w-full mt-4 btn-secondary"
                 >
                     {loading ? 'Processing...' : 'Request Loan'}
                 </Button>

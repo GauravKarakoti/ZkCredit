@@ -44,7 +44,6 @@
     "react-dom": "19.0.0",
     "react-query": "3.39.3",
     "react-use": "17.6.0",
-    "snarkjs": "^0.7.6",
     "stream-browserify": "^3.0.0",
     "swiper": "12.0.3",
     "webpack": "^5.104.1"
