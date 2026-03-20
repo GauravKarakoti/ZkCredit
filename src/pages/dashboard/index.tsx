@@ -3,7 +3,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 import axios from 'axios';
 import { Buffer } from 'buffer';
 import Layout from '@/layouts/dashboard/_dashboard';
-import type { NextPageWithLayout } from '@/types';
+import { ZKCREDIT_PROGRAM_ID, type NextPageWithLayout } from '@/types';
 import Button from '@/components/ui/button';
 
 const DashboardPage: NextPageWithLayout = () => {
@@ -55,31 +55,31 @@ const DashboardPage: NextPageWithLayout = () => {
         
         try {
             const loanRequest = {
-                program: 'zkcreditv2.aleo',
+                program: ZKCREDIT_PROGRAM_ID,
                 function: 'request_loan',
                 inputs: [
                     stealthAddress, 
-                    ephemeralSecret, // Encrypted Ephemeral Secret
+                    ephemeralSecret,
                     `${amount}u64`,
                     `${threshold}u64`,
                     creditProofStruct,
                     formattedSignatures,
                     formattedOraclePks,
-                    '2u8' // threshold
+                    '2u8'
                 ],
-                fee: 0.05, 
+                fee: 50_000, 
             };
             const txResult = await executeTransaction(loanRequest);
-            
+
             // If Selective Disclosure is enabled, send a second transaction to share the score
             if (shareScore && lenderAddress && txResult?.transactionId) {
                 setStatus('Sharing encrypted score with lender...');
                 const encryptedScore = `${score}field`; // Mock encryption
                 const shareRequest = {
-                    program: 'zkcreditv2.aleo',
+                    program: ZKCREDIT_PROGRAM_ID,
                     function: 'share_score',
                     inputs: [lenderAddress, stealthAddress, encryptedScore],
-                    fee: 0.02
+                    fee: 20_000
                 };
                 await executeTransaction(shareRequest);
             }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 import Layout from '@/layouts/dashboard/_dashboard';
-import type { NextPageWithLayout } from '@/types';
+import { ZKCREDIT_PROGRAM_ID, type NextPageWithLayout } from '@/types';
 import Button from '@/components/ui/button';
 
 const LendPage: NextPageWithLayout = () => {
@@ -15,7 +15,7 @@ const LendPage: NextPageWithLayout = () => {
         setLoading(true);
         try {
             // Fetch all records owned by this address for the program
-            const records = await requestRecords('zkcreditv2.aleo');
+            const records = await requestRecords(ZKCREDIT_PROGRAM_ID);
             
             // Filter records by struct name 
             const loanRecords = records.filter((r: any) => r.recordName === 'Loan' && !r.spent);
@@ -32,7 +32,7 @@ const LendPage: NextPageWithLayout = () => {
     const fundLoan = async (loanRecord: any) => {
         try {
             const fundRequest = {
-                program: 'zkcreditv2.aleo',
+                program: ZKCREDIT_PROGRAM_ID,
                 function: 'fund_loan',
                 inputs: [
                     loanRecord,
@@ -40,7 +40,7 @@ const LendPage: NextPageWithLayout = () => {
                     '50000u64', // 5% Interest Mock
                     '1000u32'   // Block height deadline mock
                 ],
-                fee: 0.05
+                fee: 50_000
             };
             const tx = await executeTransaction(fundRequest);
             alert(`Loan Funded! TX: ${tx!.transactionId}`);
