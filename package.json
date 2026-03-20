@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "clean": "rimraf \"{node_modules,.next,out.cache}\"",
-    "delete-local-modules": "rimraf ./node_modules/@provablehq/aleo-wallet-adaptor-react/node_modules ./node_modules/@provablehq/aleo-wallet-adaptor-react-ui/node_modules ./.next",
+  "delete-local-modules": "rimraf ./node_modules/@provablehq/aleo-wallet-adaptor-react/node_modules ./node_modules/@provablehq/aleo-wallet-adaptor-react-ui/node_modules",
     "configure-program": "tsc ./util/update-program.ts && node ./util/update-program.js",
     "build-program": "cd ./program && leo build",
     "copy-program": "tsc ./util/copy-program.ts && node ./util/copy-program.js",

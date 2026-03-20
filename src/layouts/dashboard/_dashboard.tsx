@@ -1,18 +1,31 @@
-import { useState } from 'react';
 import cn from 'classnames';
 import { useWindowScroll } from '@/hooks/use-window-scroll';
-
 import { useIsMounted } from '@/hooks/use-is-mounted';
-
-
 import React from 'react';
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui';
+import Button from '@/components/ui/button';
+import { useRouter } from 'next/router';
 
 require('@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css');
 
 function HeaderRightArea() {
+  const router = useRouter()
   return (
     <div className="relative order-last flex shrink-0 items-center gap-3 sm:gap-6 lg:gap-8">
+      <Button
+        // Wrap the router.push in an arrow function
+        onClick={() => router.push('/dashboard')} 
+        className="px-6 py-3 text-lg font-semibold"
+      >
+        Dashboard
+      </Button>
+      <Button
+        // Wrap the router.push in an arrow function
+        onClick={() => router.push('/dashboard/lend')} 
+        className="px-6 py-3 text-lg font-semibold"
+      >
+        Lend
+      </Button>
       <WalletMultiButton className="bg-[#1253fa]" />
     </div>
   );
