@@ -14,4 +14,4 @@ export type NextPageWithLayout<P = {}> = NextPage<P> & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
 
-export const ZKCREDIT_PROGRAM_ID = 'zkcredit.aleo';
+export const ZKCREDIT_PROGRAM_ID = 'zkcreditv2.aleo';

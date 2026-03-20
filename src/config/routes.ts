@@ -3,6 +3,7 @@ const routes = {
   settings: '/settings',
   authorize: '/authorize',
   dashBoard: '/dashboard',
+  lend: '/dashboard/lend',
 };
 
 export default routes;
