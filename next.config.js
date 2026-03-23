@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const webpack = require('webpack');
-const withSerwist = require("@serwist/next").default({
-  swSrc: "src/sw.ts",     
-  swDest: "public/sw.js", 
-  disable: process.env.NODE_ENV === "development",
-});
 require('dotenv').config();
 
 const nextConfig = {
@@ -97,4 +92,4 @@ function patchWasmModuleImport(config, isServer) {
   }
 }
 
-module.exports = withSerwist(nextConfig);
+module.exports = nextConfig;
