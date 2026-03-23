@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const webpack = require('webpack');
-const withPWA = require('@ducanh2912/next-pwa').default({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-});
 require('dotenv').config();
 
 const nextConfig = {
@@ -86,4 +82,4 @@ function patchWasmModuleImport(config, isServer) {
   }
 }
 
-module.exports = withPWA(nextConfig);
+module.exports = nextConfig;
