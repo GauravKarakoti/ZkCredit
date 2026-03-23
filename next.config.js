@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 
 const webpack = require('webpack');
+const withSerwist = require("@serwist/next").default({
+  swSrc: "public/sw.js",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
 require('dotenv').config();
 
 const nextConfig = {
@@ -49,13 +54,10 @@ const nextConfig = {
     
     patchWasmModuleImport(config, options.isServer);
 
-    // Update this rule:
     config.module.rules.push({
       test: /\.wasm$/,
-      // CHANGED: Match the new Provable/Aleo SDK packages instead of demox-labs
       include: /node_modules[\\/](@provablehq|@aleohq)/,
-      type: 'javascript/auto',
-      loader: 'file-loader', // Note: in Webpack 5, you can also use `type: 'asset/resource'` instead of file-loader
+      type: 'asset/resource',
     });
 
     return config;
@@ -82,4 +84,4 @@ function patchWasmModuleImport(config, isServer) {
   }
 }
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);
