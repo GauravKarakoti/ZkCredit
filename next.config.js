@@ -25,6 +25,9 @@ const nextConfig = {
       ignoreDuringBuilds: true,
     },
   }),
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
   webpack: (config, options) => {
     config.ignoreWarnings = [/Failed to parse source map/];
     
