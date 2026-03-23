@@ -2,8 +2,8 @@
 
 const webpack = require('webpack');
 const withSerwist = require("@serwist/next").default({
-  swSrc: "src/sw.ts",     // ✅ Changed to point to a source file
-  swDest: "public/sw.js", // ✅ Output destination
+  swSrc: "src/sw.ts",     
+  swDest: "public/sw.js", 
   disable: process.env.NODE_ENV === "development",
 });
 require('dotenv').config();
@@ -27,18 +27,24 @@ const nextConfig = {
   }),
   webpack: (config, options) => {
     config.ignoreWarnings = [/Failed to parse source map/];
-    const fallback = config.resolve.fallback || {};
-    Object.assign(fallback, {
-      stream: require.resolve('stream-browserify'),
-      fs: require.resolve('browserify-fs'),
-    });
-    config.resolve.fallback = fallback;
-    config.plugins = (config.plugins || []).concat([
-      new webpack.ProvidePlugin({
-        process: 'process/browser',
-        Buffer: ['buffer', 'Buffer'],
-      }),
-    ]);
+    
+    // 1. Only apply browser fallbacks and polyfills on the client side
+    if (!options.isServer) {
+      const fallback = config.resolve.fallback || {};
+      Object.assign(fallback, {
+        stream: require.resolve('stream-browserify'),
+        fs: require.resolve('browserify-fs'),
+      });
+      config.resolve.fallback = fallback;
+
+      config.plugins = (config.plugins || []).concat([
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+          Buffer: ['buffer', 'Buffer'],
+        }),
+      ]);
+    }
+
     const experiments = config.experiments || {};
     Object.assign(experiments, {
       asyncWebAssembly: true,
@@ -46,12 +52,14 @@ const nextConfig = {
       topLevelAwait: true,
     });
     config.experiments = experiments;
+    
     const alias = config.resolve.alias || {};
     Object.assign(alias, {
       react$: require.resolve('react'),
     });
     config.resolve.alias = alias;
     
+    // 2. Properly handle WASM without rule conflicts
     patchWasmModuleImport(config, options.isServer);
 
     config.module.rules.push({
@@ -73,10 +81,11 @@ function patchWasmModuleImport(config, isServer) {
 
   config.module.rules.push({
       test: /\.wasm$/,
+      // Add this line to exclude Aleo from the generic WASM handler
+      exclude: /node_modules[\\/](@provablehq|@aleohq)/, 
       type: 'webassembly/async',
   });
 
-  // TODO: improve this function -> track https://github.com/vercel/next.js/issues/25852
   if (isServer) {
       config.output.webassemblyModuleFilename = './../static/wasm/[modulehash].wasm';
   } else {
