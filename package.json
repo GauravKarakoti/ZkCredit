@@ -47,6 +47,7 @@
     "react-dom": "19.0.0",
     "react-query": "3.39.3",
     "react-use": "17.6.0",
+    "serwist": "^9.5.7",
     "stream-browserify": "^3.0.0",
     "swiper": "12.0.3",
     "typescript": "5.9.3",

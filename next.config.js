@@ -2,8 +2,8 @@
 
 const webpack = require('webpack');
 const withSerwist = require("@serwist/next").default({
-  swSrc: "public/sw.js",
-  swDest: "public/sw.js",
+  swSrc: "src/sw.ts",     // ✅ Changed to point to a source file
+  swDest: "public/sw.js", // ✅ Output destination
   disable: process.env.NODE_ENV === "development",
 });
 require('dotenv').config();
