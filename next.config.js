@@ -28,12 +28,13 @@ const nextConfig = {
   webpack: (config, options) => {
     config.ignoreWarnings = [/Failed to parse source map/];
     
-    // 1. Only apply browser fallbacks and polyfills on the client side
     if (!options.isServer) {
       const fallback = config.resolve.fallback || {};
       Object.assign(fallback, {
         stream: require.resolve('stream-browserify'),
-        fs: require.resolve('browserify-fs'),
+        fs: false, // <-- Change this from require.resolve('browserify-fs') to false
+        path: false,
+        crypto: false,
       });
       config.resolve.fallback = fallback;
 
