@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "clean": "rimraf \"{node_modules,.next,out.cache}\"",
-  "delete-local-modules": "rimraf ./node_modules/@provablehq/aleo-wallet-adaptor-react/node_modules ./node_modules/@provablehq/aleo-wallet-adaptor-react-ui/node_modules",
+    "delete-local-modules": "rimraf ./node_modules/@provablehq/aleo-wallet-adaptor-react/node_modules ./node_modules/@provablehq/aleo-wallet-adaptor-react-ui/node_modules",
     "configure-program": "tsc ./util/update-program.ts && node ./util/update-program.js",
     "build-program": "cd ./program && leo build",
     "copy-program": "tsc ./util/copy-program.ts && node ./util/copy-program.js",
@@ -46,14 +46,14 @@
     "react-use": "17.6.0",
     "stream-browserify": "^3.0.0",
     "swiper": "12.0.3",
-    "webpack": "^5.104.1"
+    "webpack": "^5.104.1",
+    "dotenv": "16.4.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "25.0.9",
     "@types/react": "19.2.8",
     "autoprefixer": "10.4.23",
-    "dotenv": "16.4.5",
     "eslint": "8.17.0",
     "eslint-config-next": "15.2.4",
     "eslint-config-prettier": "9.1.0",
