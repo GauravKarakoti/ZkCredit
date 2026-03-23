@@ -51,15 +51,15 @@ const nextConfig = {
     });
     config.resolve.alias = alias;
     
-    // Handle nextjs bug with wasm static files
     patchWasmModuleImport(config, options.isServer);
 
-    // In next.config.js, inside your webpack function:
+    // Update this rule:
     config.module.rules.push({
       test: /\.wasm$/,
-      include: /node_modules[\\/]@demox-labs[\\/]aleo-sdk-web/,
+      // CHANGED: Match the new Provable/Aleo SDK packages instead of demox-labs
+      include: /node_modules[\\/](@provablehq|@aleohq)/,
       type: 'javascript/auto',
-      loader: 'file-loader',
+      loader: 'file-loader', // Note: in Webpack 5, you can also use `type: 'asset/resource'` instead of file-loader
     });
 
     return config;
