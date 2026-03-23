@@ -84,4 +84,4 @@ function patchWasmModuleImport(config, isServer) {
   }
 }
 
-module.exports = withPWA(nextConfig);
+module.exports = withSerwist(nextConfig);
